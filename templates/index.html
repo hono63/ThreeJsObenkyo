@@ -1,22 +1,31 @@
 {% extends "template.html" %}
 {% block content %}
 <title>Three.js practice</title>
-<style>
-  body {margin: 0;}
-</style>
+<h1>Three.js practice</h1>
+<style> body {margin:0;} </style>
 <script>
   const scene = new THREE.Scene();
   // FOV:75deg, Aspect ratio, near:0.1, far:1000(レンダリングする範囲)
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
+  const renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth*0.8, window.innerHeight*0.8);
+  document.body.appendChild(renderer.domElement);
+
   const geometry = new THREE.BoxGeometry();
-  const material = new THREE.MeshBasicMaterial({color:0x00f00});
-  const cube = new THREE.Mesh(geometry, material);
+  
+  const cubemat = new THREE.MeshBasicMaterial({color:0x339999});
+  const cube = new THREE.Mesh(geometry, cubemat);
   scene.add(cube);
+
   camera.position.z = 5;
 
-  const renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth/2, window.innerHeight/2);
-  document.body.appendChild(renderer.domElement);
+  function animate() {
+    requestAnimationFrame(animate);
+    cube.rotation.x += 0.01;
+    cube.rotation.y += 0.001;
+    renderer.render(scene, camera);
+  }
+  animate();
 </script>
 {% endblock %}
