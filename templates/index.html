@@ -2,6 +2,7 @@
 {% block content %}
 <title>Three.js practice</title>
 <h1>Three.js practice</h1>
+<p id="zahyo"></p>
 <style> body {margin:0;} </style>
 <script>
   const scene = new THREE.Scene();
@@ -9,7 +10,7 @@
   const NEAR = 1; // レンダリングする範囲 NEAR~FAR
   const FAR = 500;
   const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, NEAR, FAR);
-  camera.position.set(0, 0, 100);
+  camera.position.set(1, 1, 10);
   camera.lookAt(0, 0, 0);
 
   const renderer = new THREE.WebGLRenderer();
@@ -17,33 +18,89 @@
   document.body.appendChild(renderer.domElement);
 
   // cube
-  //const cubegeo = new THREE.BoxGeometry();
-  //const cubemat = new THREE.MeshBasicMaterial({color:0x339999});
-  //const cube = new THREE.Mesh(cubegeo, cubemat);
-  //scene.add(cube);
+  const cubegeo = new THREE.BoxGeometry();
+  const cubemat = new THREE.MeshBasicMaterial({color:0x339999});
+  const cube = new THREE.Mesh(cubegeo, cubemat);
+  scene.add(cube);
 
   //line
-  const linemat = new THREE.LineBasicMaterial({color:0x3366ff});
+  const linemat = new THREE.LineBasicMaterial({
+    color:0x0,
+    linewidth: 50, // WebGLの制約?で常に1になる
+  });
   const linepts = [];
-  linepts.push(new THREE.Vector3(-10, 0, 0));
-  linepts.push(new THREE.Vector3(0, 10, 0));
-  linepts.push(new THREE.Vector3(10, 0, 10));
+  linepts.push(new THREE.Vector3(-0.5, -0.5, 0.5));
+  linepts.push(new THREE.Vector3(0.5, -0.5, 0.5));
+  linepts.push(new THREE.Vector3(0.5, 0.5, 0.5));
+  linepts.push(new THREE.Vector3(-0.5, 0.5, 0.5));
+  linepts.push(new THREE.Vector3(-0.5, -0.5, 0.5));
   const linegeo = new THREE.BufferGeometry().setFromPoints(linepts);
   const line = new THREE.Line(linegeo, linemat);
   scene.add(line);
 
+  // sphere
+  const spRadius = 0.5;
+  const spWidSeg = 16;
+  const spHeiSeg = 16;
+  const spGeo = new THREE.SphereGeometry(spRadius, spWidSeg, spHeiSeg);
+  const spMat = new THREE.MeshBasicMaterial({color:0x3366ff});
+  const spMesh1 = new THREE.Mesh(spGeo, spMat);
+  const spMesh2 = new THREE.Mesh(spGeo, spMat);
+  spMesh1.position.set(2, 2, 0);
+  spMesh2.position.set(-2, -2, 0);
+  scene.add(spMesh1);
+  scene.add(spMesh2);
+
+  // Text
+  //const loader = new FontLoader();
+  //loader.load("static/Arial_Regular.json", function(font) {
+  //  const textgeo = new THREE.TextGeometry("aiueo", {
+  //    font: font,
+  //    size: 80,
+  //    height: 5,
+  //  });
+  //  const textmat = new THREE.MeshPhongMaterial({color:0xffffff});
+  //  const textmesh = new THREE.Mesh(textgeo, textmat);
+  //  scene.add(textmesh);
+  //});
+
+  let count = 0;
+  // カメラを回転させる
   function rotCam(angle){
-    const DIA = 100;
-    camera.position.set(0, DIA*Math.sin(angle / 180 * Math.PI), DIA*Math.cos(angle / 180 * Math.PI));
+    const DIA = 5;
+    angle360 = angle % 360;
+    rad = angle / 180 * Math.PI;
+    campos = [DIA*Math.cos(rad), DIA*Math.sin(rad), DIA];
+    camera.position.set(campos[0], campos[1], campos[2]);
     camera.lookAt(0, 0, 0);
+    if (count % 10 == 0) {
+      text = "Camera: pos(" + campos[0].toFixed(1) + "," + campos[1].toFixed(1) + "," + campos[2].toFixed(1) + ") angle: " + angle360.toFixed(1) + "deg.";
+      $("#zahyo").html(text);
+    }
+    count += 1;
+  }
+
+  let spCount = 0;
+  // 球体を回転させる
+  function rotSphere(angle){
+    const DIA = 2;
+    angle360 = angle % 360;
+    rad = angle / 180 * Math.PI;
+    pos = [DIA*Math.cos(rad), DIA*Math.sin(rad), 0];
+    spMesh1.position.set(pos[0], pos[1], pos[2]);
+    spMesh2.position.set(-pos[0], -pos[1], pos[2]);
+    if (spCount % 10 == 0) {
+      text = "Sphere: pos(" + pos[0].toFixed(1) + "," + pos[1].toFixed(1) + "," + pos[2].toFixed(1) + ") angle: " + angle360.toFixed(1) + "deg.";
+      $("#zahyo").html(text);
+    }
+    spCount += 1;
   }
 
   let angle = 90;
   function animate() {
     requestAnimationFrame(animate);
-    //cube.rotation.x += 0.01;
-    //cube.rotation.y += 0.001;
-    rotCam(angle);
+    //rotCam(angle);
+    rotSphere(angle);
     angle += 1;
     renderer.render(scene, camera);
   }
